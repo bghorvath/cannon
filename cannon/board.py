@@ -31,21 +31,6 @@ class Board:
                         self.board[row][col] = Piece(row, col, DARK)
                     else:
                         self.board[row][col] = 0
-        # for row in range(ROWS):
-        #     self.board.append([])
-        #     for col in range(COLS):
-        #         if col % 2 == 0:
-        #             if row in {1,2,3}:
-        #                 self.board[row].append(Piece(row, col, LIGHT))
-        #             else:
-        #                 self.board[row].append(0)
-        #         elif col % 2 == 1:
-        #             if row in {6,7,8}:
-        #                 self.board[row].append(Piece(row, col, DARK))
-        #             else:
-        #                 self.board[row].append(0)
-        #         else:
-        #             self.board[row].append(0) # NOTE don't forget to add Town as soon as players choose
 
     def draw(self, win):
         self.draw_grid(win)
@@ -72,7 +57,6 @@ class Board:
         # and if piece disappeared, the pieces its in 1 cannon with
 
     def remove(self, row, col):
-        piece = self.board[row][col]
         self.board[row][col] = 0
 
     def parse_board(self, row, col, color):
@@ -127,9 +111,6 @@ class Board:
         # could make it better by only calculating this once, using "dark"/"light" instead of enemy/friedly
         # calculate once for whole board ?
         
-        # return moves
-            # return {k: ("enemy",v) if type(v) in {Piece, Town} and v.color != color else ("friendly",v) if type(v) in {Piece, Town} else ("empty",v) if v != 0 else ("no",0) for k,v in proximity.items()}
-
         prox = self.parse_board(row, col, color)
 
         # basic moves

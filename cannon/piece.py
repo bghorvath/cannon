@@ -1,5 +1,5 @@
 import pygame
-from cannon.const import BORDER, GRID, DARK, PIECE_RADIUS, OUTLINE, BLACK, TOWN, TOWN_SIZE
+from cannon.const import BORDER, GRID, PIECE_RADIUS, OUTLINE, BLACK, TOWN, TOWN_SIZE
 
 class Piece:
     def __init__(self, row, col, color):
