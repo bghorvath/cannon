@@ -32,7 +32,6 @@ class Town():
         self.row = row
         self.col = col
         self.color = color
-        self.dead = False
 
         self.x = 0
         self.y = 0
