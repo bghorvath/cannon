@@ -1,11 +1,13 @@
 import pygame
 from cannon.piece import Piece, Town
-from cannon.const import WIDTH, HEIGHT, BORDER, ROWS, COLS, GRID, LIGHT, DARK, PADDING, PIECE_RADIUS, OUTLINE, LIGHT_BROWN, BROWN, BLACK, WHITE, BLUE
+from cannon.const import WIDTH, HEIGHT, BORDER, ROWS, COLS, GRID, LIGHT, DARK, PIECE_RADIUS, LIGHT_BROWN, BROWN, BLACK, WHITE, BLUE
 
 class Board:
     def __init__(self):
         self.board = {}
         self.light_pieces = self.dark_pieces = 15
+        self.valid_towns = {LIGHT: [(0,n+1) for n in range(COLS-2)], DARK: [(ROWS-1,n+1) for n in range(COLS-2)]}
+        self.towns = {}
 
         self.create_board()
     
@@ -40,6 +42,16 @@ class Board:
                 if piece != 0:
                     piece.draw(win)
 
+    def place_town(self, row, col, turn):
+        color_valid_towns = self.valid_towns.get(turn)
+        if (row, col) in color_valid_towns:
+            town = Town(row, col, turn)
+            self.towns[turn] = town
+            self.board[row][col] = town
+        else:
+            return False
+        return True
+        
     def get_piece(self, row, col):
         try:
             piece = self.board[row][col]
@@ -58,6 +70,15 @@ class Board:
 
     def remove(self, row, col):
         self.board[row][col] = 0
+
+    def deduct_piece(self, color):
+        """
+        If a piece is captured or shot, deduct it from the player's piece count.
+        """
+        if color == DARK:
+            self.dark_pieces -= 1
+        else:
+            self.light_pieces -= 1
 
     def parse_board(self, row, col, color):
         if color == DARK:
@@ -160,3 +181,9 @@ class Board:
                 move_color = BLUE
             row, col = move
             pygame.draw.circle(win, move_color, (BORDER + col * GRID, BORDER + row * GRID), PIECE_RADIUS*0.5)
+
+    def get_valid_pieces(self, color):
+        return [v_v for _,v in self.board.items() for _, v_v in v.items() if type(v_v) == Piece and v_v.color == color]
+
+    def evaluate(self):
+        return self.light_pieces - self.dark_pieces + 10 * (bool(self.towns.get(LIGHT)) - bool(self.towns.get(DARK)))

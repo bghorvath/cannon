@@ -1,10 +1,13 @@
+# standard imports
+from random import choice
+
 # third party imports
 import pygame
 
 # local imports
 from cannon.board import Board
-from cannon.piece import Piece, Town
-from cannon.const import LIGHT, DARK, ROWS, COLS
+from cannon.piece import Piece
+from cannon.const import LIGHT, DARK
 
 class Game:
     """
@@ -33,14 +36,11 @@ class Game:
             turn (tuple): The color of the player whose turn it is.
             valid_moves (dict): Dictionary of valid moves for the selected piece.
             towns (set): Set of towns on the board, needed for first move (placing the 2 towns).
-            chickendinner (tuple): The color of the player who won the game. If not None, the game is over. Resets with restart.
         """
         self.selected = None
         self.board = Board()
         self.turn = DARK
         self.valid_moves = {}
-        self.towns = set()
-        self.chickendinner = None
     
     def reset(self):
         """
@@ -56,18 +56,17 @@ class Game:
         self.board.draw_valid_moves(self.win, self.valid_moves)
         pygame.display.update()
     
-    def winner(self):
+    def chickendinner(self):
         """
         Return a winner if the game is over.
 
         Returns:
             str: The winner if the game is over, else None.
         """
-        if self.chickendinner:
-            if self.chickendinner == DARK:
-                return "DARK"
-            else:
-                return "LIGHT"
+        if self.board.towns.get(LIGHT) == 0:
+            return "DARK"
+        if self.board.towns.get(DARK) == 0:
+            return "LIGHT"
         return None
     
     def select(self, row, col):
@@ -81,12 +80,9 @@ class Game:
         Returns:
             bool: True if selection was successful, False if not.
         """
-        if len(self.towns) < 2:
-            valid_towns = [(0,n+1) for n in range(COLS-2)] if self.turn == LIGHT else [(ROWS-1,n+1) for n in range(COLS-2)]
-            if (row, col) in valid_towns:
-                town = Town(row, col, self.turn)
-                self.towns.add(town)
-                self.board.board[row][col] = town
+        if len(self.board.towns) < 2:
+            result = self.board.place_town(row, col, self.turn)
+            if result:
                 self.change_turn()
         else:
             if self.selected:
@@ -119,35 +115,24 @@ class Game:
         """
         move = self.valid_moves.get((row, col))
         if move:
-            if move[0] == "move":
+            move_type = move[0]
+            if move_type == "move":
                 self.board.move(piece, row, col)
-            elif move[0] == "capture":
-                self.board.move(piece, row, col)
-                if type(move[1]) == Piece:
-                    self.deduct_piece(piece.color)
-                    # print(self.board.light_pieces, self.board.dark_pieces)
+            elif move_type in {"capture", "shoot"}:
+                enemy_piece = move[1]
+                enemy_color = enemy_piece.color
+                if move_type == "capture":
+                    self.board.move(piece, row, col)
                 else:
-                    self.chickendinner = piece.color
-            elif move[0] == "shoot":
-                self.board.remove(row, col)
-                if type(move[1]) == Piece:
-                    self.deduct_piece(piece.color)
-                    # print(self.board.light_pieces, self.board.dark_pieces)
+                    self.board.remove(row, col)
+                if type(enemy_piece) == Piece:
+                    self.board.deduct_piece(enemy_color)
                 else:
-                    self.chickendinner = piece.color
+                    self.board.towns[enemy_color] = 0
             self.change_turn()
         else:
             return False
         return True
-    
-    def deduct_piece(self, color):
-        """
-        If a piece is captured or shot, deduct it from the player's piece count.
-        """
-        if color == DARK:
-            self.board.light_pieces -= 1
-        else:
-            self.board.dark_pieces -= 1
 
     def change_turn(self):
         """
@@ -158,3 +143,14 @@ class Game:
             self.turn = DARK
         else:
             self.turn = LIGHT
+
+    def random_town(self):
+        color_valid_towns = self.board.valid_towns.get(self.turn)
+        row, col = choice(color_valid_towns)
+        self.board.place_town(row, col, self.turn)
+        
+        self.change_turn()
+
+    def ai_move(self, board):
+        self.board = board
+        self.change_turn()
