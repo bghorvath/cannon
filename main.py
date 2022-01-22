@@ -25,7 +25,7 @@ def main():
 
         if game.winner():
             Tk().wm_withdraw()
-            messagebox.showinfo("",game.winner())
+            messagebox.showinfo(game.winner(),"YOU'RE WINNER!")
             run = False
 
         for event in pygame.event.get():

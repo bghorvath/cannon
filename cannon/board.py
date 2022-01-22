@@ -120,7 +120,7 @@ class Board:
             if prox[move]["field_type"] == "empty":
                 moves[pos] = ("move", None)
             elif prox[move]["field_type"] == "enemy":
-                moves[pos] = ("take", piece)
+                moves[pos] = ("capture", piece)
         
         # retreat
         if any(v["field_type"] == "enemy" for v in [prox["up1"], prox["left1"], prox["right1"], prox["leftup1"], prox["rightup1"]]):
@@ -134,7 +134,7 @@ class Board:
             pos = prox[move]["pos"]
             piece = prox[move]["piece"]
             if prox[move]["field_type"] == "enemy":
-                moves[pos] = ("take", piece)
+                moves[pos] = ("capture", piece)
         
         # cannon moves and shoots
         for move in ["up", "down", "left", "right", "leftup", "leftdown", "rightup", "rightdown"]:
