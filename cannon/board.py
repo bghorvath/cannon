@@ -1,3 +1,4 @@
+from random import shuffle
 import pygame
 from cannon.piece import Piece, Town
 from cannon.params import WIDTH, HEIGHT, BORDER, ROWS, COLS, GRID, LIGHT, DARK, PIECE_RADIUS, LIGHT_BROWN, BROWN, BLACK, WHITE, BLUE
@@ -8,6 +9,7 @@ class Board:
         self.light_pieces = self.dark_pieces = 15
         self.valid_towns = {LIGHT: [(0,n+1) for n in range(COLS-2)], DARK: [(ROWS-1,n+1) for n in range(COLS-2)]}
         self.towns = {}
+        self.no_move = None
 
         self.create_board()
     
@@ -81,31 +83,28 @@ class Board:
             self.light_pieces -= 1
 
     def parse_board(self, row, col, color):
-        if color == DARK:
-            step = -1
-        else:
-            step = 1
+        step = {LIGHT: 1, DARK: -1}.get(color)
         proximity = {}
         for field in [{"left"}, {"right"}, {"up"}, {"down"}, {"left","up"}, {"left","down"}, {"right","up"}, {"right","down"}]:
             for count in [1, 2, 3, 4, 5]:
                 newrow = row
                 newcol = col
-                field_Name = ""
+                field_name = ""
                 if "left" in field:
                     newcol = col + step * count
-                    field_Name += "left"
+                    field_name += "left"
                 if "right" in field:
                     newcol = col - step * count
-                    field_Name += "right"
+                    field_name += "right"
                 if "up" in field:
                     newrow = row + step * count
-                    field_Name += "up"
+                    field_name += "up"
                 if "down" in field:
                     newrow = row - step * count
-                    field_Name += "down"
-                field_Name = field_Name+str(count) # creating field names, e.g. leftup3, down5, etc.
+                    field_name += "down"
+                field_name = field_name+str(count) # creating field names, e.g. leftup3, down5, etc.
 
-                proximity[field_Name] = {"piece": self.board.get(newrow,{}).get(newcol), "pos": (newrow, newcol)} # assigning field value (piece / 0 / None) and position
+                proximity[field_name] = {"piece": self.board.get(newrow,{}).get(newcol), "pos": (newrow, newcol)} # assigning field value (piece / 0 / None) and position
 
         field_type_dict = {}
         for k,v in proximity.items():
@@ -144,10 +143,10 @@ class Board:
                 moves[pos] = ("capture", piece)
         
         # retreat
-        if any(v["field_type"] == "enemy" for v in [prox["up1"], prox["left1"], prox["right1"], prox["leftup1"], prox["rightup1"]]):
-            for move in ["down2", "leftdown2", "rightdown2"]:
-                pos = prox[move]["pos"]
-                if prox[move]["field_type"] == "empty":
+        if any(v["field_type"] == "enemy" and v["piece_type"] == Piece for v in [prox["up1"], prox["left1"], prox["right1"], prox["leftup1"], prox["rightup1"]]):
+            for move in ["down", "leftdown", "rightdown"]:
+                if prox[move+"1"]["field_type"] == "empty" and prox[move+"2"]["field_type"] == "empty":
+                    pos = prox[move+"2"]["pos"]
                     moves[pos] = ("move", None)
 
         # left-right takes
@@ -170,7 +169,7 @@ class Board:
                     pos = prox[move+"5"]["pos"]
                     piece = prox[move+"5"]["piece"]
                     moves[pos] = ("shoot", piece)
-
+        
         return moves
 
     def draw_valid_moves(self, win, moves):
@@ -183,7 +182,28 @@ class Board:
             pygame.draw.circle(win, move_color, (BORDER + col * GRID, BORDER + row * GRID), PIECE_RADIUS*0.5)
 
     def get_valid_pieces(self, color):
-        return [v_v for _,v in self.board.items() for _, v_v in v.items() if type(v_v) == Piece and v_v.color == color]
+        valid_pieces = [v_v for _,v in self.board.items() for _, v_v in v.items() if type(v_v) == Piece and v_v.color == color]
+        shuffle(valid_pieces)
+        return valid_pieces
 
-    def evaluate(self):
-        return self.light_pieces - self.dark_pieces + 10 * (bool(self.towns.get(LIGHT)) - bool(self.towns.get(DARK)))
+    def distance_from_opposite_town(self, piece):
+        if piece.color == DARK:
+            town = self.towns.get(LIGHT)
+        else:
+            town = self.towns.get(DARK)
+
+        return abs(piece.row-town.row)+abs(piece.col-town.col)
+
+    def evaluate(self, color):
+        # num_pieces = 0
+        # min_town_distance = float("-inf")
+        # if 
+        # for piece in self.get_valid_pieces(color):
+        #     num_pieces += 1
+        #     town_distance = self.distance_from_opposite_town(piece)
+        #     if town_distance < min_town_distance:
+        #         min_town_distance = town_distance
+        if color == LIGHT:
+            return self.light_pieces - self.dark_pieces + 100 * (bool(self.towns.get(LIGHT)) - bool(self.towns.get(DARK)))
+        else:
+            return -1 * (self.light_pieces - self.dark_pieces + 100 * (bool(self.towns.get(LIGHT)) - bool(self.towns.get(DARK))))

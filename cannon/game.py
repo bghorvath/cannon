@@ -63,9 +63,9 @@ class Game:
         Returns:
             str: The winner if the game is over, else None.
         """
-        if self.board.towns.get(LIGHT) == 0:
+        if self.board.towns.get(LIGHT) == 0 or self.board.no_move == LIGHT:
             return "DARK"
-        if self.board.towns.get(DARK) == 0:
+        if self.board.towns.get(DARK) == 0 or self.board.no_move == DARK:
             return "LIGHT"
         return None
     
