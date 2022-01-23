@@ -24,3 +24,5 @@ BLUE = (0, 0, 255)
 TOWN_SIZE = 40
 
 TOWN = pygame.transform.scale(pygame.image.load("cannon/assets/town.png"), (TOWN_SIZE, TOWN_SIZE))
+
+AI_COLOR = LIGHT

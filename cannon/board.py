@@ -1,6 +1,6 @@
 import pygame
 from cannon.piece import Piece, Town
-from cannon.const import WIDTH, HEIGHT, BORDER, ROWS, COLS, GRID, LIGHT, DARK, PIECE_RADIUS, LIGHT_BROWN, BROWN, BLACK, WHITE, BLUE
+from cannon.params import WIDTH, HEIGHT, BORDER, ROWS, COLS, GRID, LIGHT, DARK, PIECE_RADIUS, LIGHT_BROWN, BROWN, BLACK, WHITE, BLUE
 
 class Board:
     def __init__(self):

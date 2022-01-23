@@ -7,7 +7,7 @@ import pygame
 # local imports
 from cannon.board import Board
 from cannon.piece import Piece
-from cannon.const import LIGHT, DARK
+from cannon.params import LIGHT, DARK
 
 class Game:
     """
@@ -148,7 +148,6 @@ class Game:
         color_valid_towns = self.board.valid_towns.get(self.turn)
         row, col = choice(color_valid_towns)
         self.board.place_town(row, col, self.turn)
-        
         self.change_turn()
 
     def ai_move(self, board):

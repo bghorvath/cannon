@@ -2,7 +2,7 @@ from copy import deepcopy
 
 import pygame
 
-from cannon.const import DARK, LIGHT
+from cannon.params import DARK, LIGHT
 from cannon.piece import Piece
 
 # as first move, the AI should select the town randomly
@@ -19,7 +19,7 @@ class Ai:
             False: {"score_boundary": float("inf"), "color": DARK, "extrema": min}
         }
     
-    def call_minimax(self, board, depth):
+    def call_algorithm(self, board, depth):
         if self.ai_color == DARK:
             return self.minimax(board, depth, False)
         else:
@@ -41,30 +41,11 @@ class Ai:
         
         return best_score, best_move_board
     
-    # def minimax(self, board, depth, max_player):
-    #     if depth == 0 or board.towns.get(LIGHT) == 0 or board.towns.get(LIGHT) == 0:
-    #         return board.evaluate(), board
-        
-    #     if max_player:
-    #         max_score = float("-inf")
-    #         best_move_board = None
-    #         for move_board in self.get_all_move_boards(board, LIGHT):
-    #             score = self.minimax(move_board, depth-1, False)[0]
-    #             max_score = max(max_score, score)
-    #             if max_score == score:
-    #                 best_move_board = move_board
-                
-    #         return max_score, best_move_board
-    #     else:
-    #         min_score = float("inf")
-    #         best_move_board = None
-    #         for move_board in self.get_all_move_boards(board, DARK):
-    #             score = self.minimax(move_board, depth-1, True)[0]
-    #             min_score = min(min_score, score)
-    #             if min_score == score:
-    #                 best_move_board = move_board
-            
-    #         return min_score, best_move_board
+    def alpha_beta(self):
+        pass
+
+    def iterative_deepening(self):
+        pass
 
     def get_all_move_boards(self, board, color):
         move_boards = []
